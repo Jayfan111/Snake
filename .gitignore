@@ -22,3 +22,12 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# 编译输出（IDEA 默认输出目录 / Maven 输出目录）
+out/
+target/
+bin/
+
+# WorkBuddy 本地会话数据：记忆、工作日志、状态缓存
+# 只是本机的辅助记录，不是项目产物；删掉它不影响程序运行
+.workbuddy/
