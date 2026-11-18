@@ -24,53 +24,63 @@ import java.util.concurrent.ThreadLocalRandom;
  * 【方法清单】
  * 构造：Board(int width, int height)
  * int width() / int height()                   —— 给 view 算像素用
- * boolean isInside(Cell c)                     —— 已有，但下界漏了，见下
+ * boolean isInside(Cell c)                     —— 撞墙判定
  * Cell food()                                  —— 当前食物坐标，可能为 null
  * void spawnFood(Collection<Cell> occupied)    —— 重新放食物；棋盘满时置 null
  * boolean isFoodAt(Cell c)                     —— 顺手给 GameModel 用
  *
- * 【现在这个 isInside 的两个问题】
- * 1. 只判了上界，没判下界：x = -1 会返回 true。负坐标在贪吃蛇里是真实存在的
- *    （蛇头往上走一步就是 y-1），漏判的后果是"穿墙了却不报错"，
- *    而且这条 bug 只有在贴着左墙或上墙的时候才出现。
- * 2. 用了 <= 而不是 <：坐标范围是 0..width-1，x == width 已经在界外了。
- *    这是最典型的 off-by-one，表现为"贴着右墙还能多走一格才死"。
+ * 【坐标约定】
+ * 合法范围是 0 <= x < width、0 <= y < height。左上角是 (0,0)，
+ * y 轴向下增长 —— 跟屏幕像素坐标一致，所以画图时不需要翻转。
  *
- * 【完成标志】
- * 蛇占满整个棋盘时，随机放食物返回"没有位置了"，而不是卡死。
+ * 【完成标志】✓ 已达成
+ * 蛇占满整个棋盘时 spawnFood 把 food 置 null，而不是卡死或抛异常。
  */
 public class Board {
-    int width,height;
-    Cell food;
-    Board(int width, int height){
-        this.height = height;
+    private final int width;
+    private final int height;
+    private Cell food;
+
+    public Board(int width, int height) {
         this.width = width;
+        this.height = height;
     }
-    int width(){
-        return this.width;
+
+    public int width() {
+        return width;
     }
-    Cell food(){
-        return this.food;
+
+    public int height() {
+        return height;
     }
-    boolean isInside(Cell c){
-        return c != null && c.x() < width && c.x() >= 0 && c.y() < height && c.y() >= 0;
+
+    public Cell food() {
+        return food;
     }
-    void spawnFood(Collection<Cell> occupied){
+
+    public boolean isInside(Cell c) {
+        return c != null && c.x() >= 0 && c.x() < width && c.y() >= 0 && c.y() < height;
+    }
+
+    public void spawnFood(Collection<Cell> occupied) {
         Set<Cell> taken = new HashSet<>(occupied);
         List<Cell> empty = new ArrayList<>();
-        for(int x = 0; x < width; x++){
-            for(int y = 0; y < height; y++){
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 Cell c = new Cell(x, y);
-                if(!taken.contains(c)) empty.add(c);
+                if (!taken.contains(c)) {
+                    empty.add(c);
+                }
             }
         }
-        if(empty.isEmpty()){
+        if (empty.isEmpty()) {
             food = null;
             return;
         }
         food = empty.get(ThreadLocalRandom.current().nextInt(empty.size()));
     }
-    boolean isFoodAt(Cell c){
-        return c !=null && food.equals(c);
+
+    public boolean isFoodAt(Cell c) {
+        return food != null && food.equals(c);
     }
 }
