@@ -70,4 +70,7 @@ public class Board {
         }
         food = empty.get(ThreadLocalRandom.current().nextInt(empty.size()));
     }
+    boolean isFoodAt(Cell c){
+        return c !=null && food.equals(c);
+    }
 }
