@@ -1,31 +1,21 @@
 package model;
 
 /**
- * 一局游戏的四个状态。
+ * 一局的四个状态。
  *
- * 【要写的】
- * 四个常量：READY（还没开始）、RUNNING、PAUSED、GAME_OVER。
+ * 常量：READY（还没开始）/ RUNNING / PAUSED / GAME_OVER
+ * 方法：没有。也**不要**往里加"能不能动""该不该结束"这类判断 —— 那是 GameModel 的规则。
  *
- * 这个枚举里不要写任何逻辑。它的价值在于：把"现在处于什么阶段"变成一个有名字的类型，
- * 而不是用 int 0/1/2 或者几个 boolean 拼出来 —— 后者的问题是
- * "既暂停又结束"这种非法组合也写得出来。
+ * 为什么用枚举，而不是 int 0/1/2 或几个 boolean：
+ *   后者允许"既暂停又结束"这种非法组合被写出来，而且读代码时要回去查数字含义。
  *
- * 【谁能改状态，必须分清】
- * - READY -> RUNNING      ：Main 启动，或玩家第一次按键
- * - RUNNING <-> PAUSED    ：InputHandler（同时要 stop / start Timer）
- * - RUNNING -> GAME_OVER  ：只有 GameModel.step() 有权
- * - GAME_OVER -> READY    ：InputHandler 调用 model.reset()
+ * 谁能改状态（改之前先确认自己是不是那个角色）：
+ *   READY → RUNNING        Main 启动，或玩家第一次按键
+ *   RUNNING ⇄ PAUSED       InputHandler（同时 stop / start Timer）
+ *   RUNNING → GAME_OVER    只有 GameModel.step()
+ *   GAME_OVER → READY      InputHandler 调 model.reset()
  *
- * 状态属于规则，所以放在 model 包里，而不是放 loop 里当"调度标志"。
- *
- * 【方法清单】
- * 没有方法。四个常量就够了。
- *
- * 不要在枚举里写"现在能不能动""该不该结束"这类判断 —— 那是 GameModel 的规则。
- * 一旦枚举开始有行为，状态机就会分裂成两个地方，改一处忘一处。
- *
- * 【完成标志】
- * 四个常量齐全，除此之外这个文件没有任何其他内容。
+ * 状态属于规则，所以放 model 包，而不是放 loop 里当调度标志。
  */
 public enum GameState {
     READY,

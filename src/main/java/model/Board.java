@@ -6,35 +6,28 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * 棋盘：边界、食物、空格。
  *
- * 【要写的字段】
- * 宽、高（单位是格子数），以及当前食物的坐标。
+ * 字段：
+ *   private final int width, height   格子数，不是像素；建好后不变
+ *   private Cell food                 当前食物；棋盘被占满时为 null（表示通关，不是错误）
  *
- * 【要写的方法】
- * 1. isInside(Cell c)：坐标是否在界内。撞墙判定就靠它。
- * 2. 随机放食物：参数要能知道"哪些格子被蛇占了"，否则食物会落在蛇身上。
- *    做法是先把所有没被占的格子收集成一张表，再从表里随机挑一个。
- *    千万不要在 while 里反复抽随机坐标、看是否撞上蛇 —— 蛇快占满棋盘时
- *    会抽非常久，甚至永远抽不出来（死循环）。
- * 3. 吃完之后换一个食物位置。
+ * 方法：
+ *   Board(int width, int height)                 只记尺寸，不放食物
+ *   int width() / height()                       给 view 算像素尺寸
+ *   boolean isInside(Cell c)                     0 <= x < width 且 0 <= y < height
+ *   void spawnFood(Collection<Cell> occupied)    从所有空格里随机挑一个；没有空格则置 null
+ *   Cell food()                                  当前食物，可能为 null
+ *   boolean isFoodAt(Cell c)                     这个格子现在是不是食物；内部先判 null
  *
- * 【不要写的】
- * 不要持有 Snake 的引用去改蛇；不要判断"吃到了"，那是 GameModel 的事。
- * 不要 import 任何 awt / swing —— 这个包必须能脱离界面独立跑。
+ * 坐标约定：左上角是 (0,0)，x 向右、y 向下（跟屏幕像素一致，画图不用翻转）。
  *
- * 【方法清单】
- * 构造：Board(int width, int height)
- * int width() / int height()                   —— 给 view 算像素用
- * boolean isInside(Cell c)                     —— 撞墙判定
- * Cell food()                                  —— 当前食物坐标，可能为 null
- * void spawnFood(Collection<Cell> occupied)    —— 重新放食物；棋盘满时置 null
- * boolean isFoodAt(Cell c)                     —— 顺手给 GameModel 用
- *
- * 【坐标约定】
- * 合法范围是 0 <= x < width、0 <= y < height。左上角是 (0,0)，
- * y 轴向下增长 —— 跟屏幕像素坐标一致，所以画图时不需要翻转。
- *
- * 【完成标志】✓ 已达成
- * 蛇占满整个棋盘时 spawnFood 把 food 置 null，而不是卡死或抛异常。
+ * 四条经验：
+ *   1. 食物是状态，只允许一个写入点（spawnFood）。如果 view 里自己随机画一个，
+ *      界面和判定用的就是两份坐标 —— 表现为"明明吃到了却没加分"，而且很难想到是这里。
+ *   2. 先收集空格再随机挑，不要"随机抽一个坐标再看有没有撞上蛇"：蛇快占满时会反复重试，
+ *      棋盘满时直接死循环，不报错、只是卡住。
+ *   3. nextInt(0) 会抛异常，所以 empty.isEmpty() 必须在取随机数之前判。
+ *   4. 参数用 Collection<Cell> 而不是 Snake：Board 只需要知道"哪些格子被占"，
+ *      不需要认识蛇。谁被传进来不重要，依赖方向才重要。
  */
 public class Board {
     private final int width;
