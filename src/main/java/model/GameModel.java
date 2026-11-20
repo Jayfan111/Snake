@@ -75,6 +75,8 @@ public class GameModel {
         this.snake = new Snake(2, 2, INITIAL_LENGTH);
         this.board = new Board(width, height);
         board.spawnFood(snake.body());
+        this.state = GameState.READY;
+        this.delayMillis = INITIAL_DELAY;
     }
     GameState state() {
         return state;
@@ -85,7 +87,7 @@ public class GameModel {
     Snake snake(){
         return snake;
     }
-    Board board(){
+    public Board board(){
         return board;
     }
     int delayMillis(){
@@ -94,8 +96,9 @@ public class GameModel {
     void start(){
         if(state == GameState.READY) state = GameState.RUNNING;
     }
-    void togglePause(){
-        state = state == GameState.RUNNING ? GameState.PAUSED : GameState.RUNNING;
+    void togglePause() {
+        if (state == GameState.RUNNING) state = GameState.PAUSED;
+        else if (state == GameState.PAUSED) state = GameState.RUNNING;
     }
     void requestDirection(Direction d){
         if(state != GameState.RUNNING) return;

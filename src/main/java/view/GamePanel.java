@@ -1,5 +1,10 @@
 package view;
 
+import model.GameModel;
+
+import javax.swing.*;
+import java.awt.*;
+
 /**
  * 画面：把 model 的状态画出来。只做两件事 —— 读、然后画。
  *
@@ -23,5 +28,39 @@ package view;
  *   2. 别忘了 extends JPanel —— 不继承的话 paintComponent 永远不会被调用，也不报错。
  *   3. 坐标换算只写一处。以后改 CELL_SIZE 或加边距时，手算过的那些地方会一起错。
  */
-public class GamePanel {
+public class GamePanel extends JPanel {
+    private static final int CELL_SIZE = 24;
+    private static final Color
+            COLOR_BG = Color.white, COLOR_GRID = Color.white,
+            COLOR_SNAKE = Color.green, COLOR_HEAD = Color.blue,
+            COLOR_FOOD = Color.yellow, COLOR_EXIT = Color.black;
+    private final GameModel model;
+
+    GamePanel(GameModel model){
+        this.model = model;
+        setBackground(COLOR_BG);
+    }
+
+    private int toPixel(int cell){
+        return cell * CELL_SIZE;
+    }
+    @Override
+    public Dimension getPreferredSize(){
+        return new Dimension()
+    }
+    @Override
+    public void paintComponent(Graphics g){
+        super.paintComponent(g);
+
+    }
+    private void drawFood(Graphics g){
+        g.drawRect(model.board().food().x(),model.board().food().y(),
+                CELL_SIZE,CELL_SIZE);
+        g.setColor(COLOR_FOOD);
+        g.fillRect(model.board().food().x(),model.board().food().y(),
+                CELL_SIZE,CELL_SIZE);
+    }
+    private void drawSnake(){
+
+    }
 }

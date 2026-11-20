@@ -55,6 +55,8 @@ public class Snake {
     Direction direction(){
         return lastMove;
     }
+
+    /**会消费掉一个, 队列空时回落到 lastMove.*/
     Direction consumeDirection(){
         Direction d = pending.isEmpty() ? lastMove : pending.pollFirst();
         this.lastMove = d;
