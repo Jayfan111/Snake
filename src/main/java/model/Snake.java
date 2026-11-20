@@ -39,11 +39,12 @@ public class Snake {
     private final ArrayDeque<Direction> pending = new ArrayDeque<>();
     private Direction lastMove;
     private static final int MAX_PENDING = 2;
+    private final int startX, startY, initialLength;
     Snake(int startX, int startY, int initialLength ){
-        for(int i = 0; i < initialLength; i++){
-            this.body.addFirst(new Cell(startX + i, startY));
-        }
-        lastMove = Direction.RIGHT;
+        this.startX = startX;
+        this.startY = startY;
+        this.initialLength = initialLength;
+        reset();
     }
     Cell head(){
         return body.peekFirst();
@@ -82,5 +83,13 @@ public class Snake {
     }
     public List<Cell> body(){
         return List.copyOf(body);
+    }
+    void reset(){
+        body.clear();
+        pending.clear();
+        lastMove = Direction.RIGHT;
+        for(int i = 0; i < initialLength; i++){
+            this.body.addFirst(new Cell(startX + i, startY));
+        }
     }
 }
