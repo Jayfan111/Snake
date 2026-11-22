@@ -1,5 +1,6 @@
 package view;
 
+import model.Cell;
 import model.GameModel;
 
 import javax.swing.*;
@@ -33,7 +34,7 @@ public class GamePanel extends JPanel {
     private static final Color
             COLOR_BG = Color.white, COLOR_GRID = Color.white,
             COLOR_SNAKE = Color.green, COLOR_HEAD = Color.blue,
-            COLOR_FOOD = Color.yellow, COLOR_EXIT = Color.black;
+            COLOR_FOOD = Color.yellow, COLOR_TEXT = Color.black;
     private final GameModel model;
 
     GamePanel(GameModel model){
@@ -46,21 +47,41 @@ public class GamePanel extends JPanel {
     }
     @Override
     public Dimension getPreferredSize(){
-        return new Dimension()
+        return new Dimension(model.board().width() * CELL_SIZE,model.board().height() * CELL_SIZE);
     }
     @Override
     public void paintComponent(Graphics g){
         super.paintComponent(g);
-
+        drawFood(g);
+        drawSnake(g);
     }
     private void drawFood(Graphics g){
-        g.drawRect(model.board().food().x(),model.board().food().y(),
-                CELL_SIZE,CELL_SIZE);
+        Cell food = model.board().food();
+        if (food == null) return;
+        int x = toPixel(food.x());
+        int y = toPixel(food.y());
+        g.drawRect(x, y, CELL_SIZE, CELL_SIZE);
         g.setColor(COLOR_FOOD);
-        g.fillRect(model.board().food().x(),model.board().food().y(),
-                CELL_SIZE,CELL_SIZE);
+        g.fillOval(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
     }
-    private void drawSnake(){
+    private void drawSnake(Graphics g){
+        var body = model.snake().body();
+        for(int i = 1; i < body.size(); i++) {
+            Cell c = body.get(i);
+            int x = toPixel(c.x());
+            int y = toPixel(c.y());
+            g.drawRect(x, y, CELL_SIZE, CELL_SIZE);
+            g.setColor(COLOR_SNAKE);
+            g.fillOval(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+        }
+        Cell c = body.getFirst();
+        int x = toPixel(c.x());
+        int y = toPixel(c.y());
+        g.drawRect(x, y, CELL_SIZE, CELL_SIZE);
+        g.setColor(COLOR_HEAD);
+        g.fillOval(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+    }
+    private void drawOverlay(){
 
     }
 }

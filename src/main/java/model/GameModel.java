@@ -84,7 +84,7 @@ public class GameModel {
     int score(){
         return score;
     }
-    Snake snake(){
+    public Snake snake(){
         return snake;
     }
     public Board board(){
