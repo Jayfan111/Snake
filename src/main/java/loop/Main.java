@@ -33,24 +33,22 @@ import java.awt.*;
  *   3. 尺寸、初始速度这类"开局前就定好、整局不变"的值归这里；
  *      会随一局变化的值（分数、当前步长、状态）归 model。分界线就是"会不会变"。
  */
-public class Main extends JFrame {
+public class Main{
     private static final int COLS = 27;
     private static final int ROWS = 27;
-    public Main(){
-        setup();
-    }
-    private void setup(){
-        GameModel gm = new GameModel(COLS,ROWS);
-        GamePanel gp = new GamePanel(gm);
-        add(gp);
-        pack();
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    private static void setup(){
+        JFrame frame = new JFrame("贪吃蛇");
+        GameModel model = new GameModel(COLS,ROWS);
+        GamePanel panel = new GamePanel(model);
+        frame.add(panel);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        GameLoop loop = new GameLoop(model,panel);
+        frame.setVisible(true);
+        loop.start();
     }
     public static void main(String[] args){
-        EventQueue.invokeLater(() ->{
-            var main = new Main();
-            main.setVisible(true);
-        });
+        EventQueue.invokeLater(Main::setup);
     }
 }

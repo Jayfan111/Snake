@@ -63,9 +63,9 @@ public class GamePanel extends JPanel {
         if (food == null) return;
         int x = toPixel(food.x());
         int y = toPixel(food.y());
-        g.drawOval(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+        g.drawOval(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
         g.setColor(COLOR_FOOD);
-        g.fillOval(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+        g.fillOval(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
     }
     private void drawSnake(Graphics g){
         var body = model.snake().body();
@@ -73,16 +73,14 @@ public class GamePanel extends JPanel {
             Cell c = body.get(i);
             int x = toPixel(c.x());
             int y = toPixel(c.y());
-            g.drawRect(x, y, CELL_SIZE, CELL_SIZE);
             g.setColor(COLOR_SNAKE);
-            g.fillOval(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+            g.fillOval(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
         }
         Cell c = body.getFirst();
         int x = toPixel(c.x());
         int y = toPixel(c.y());
-        g.drawOval(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
         g.setColor(COLOR_HEAD);
-        g.fillOval(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+        g.fillOval(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
     }
     private void drawOverlay(Graphics g){
         g.setFont(new Font("微软雅黑",Font.BOLD,29));
@@ -113,7 +111,7 @@ public class GamePanel extends JPanel {
                 String text = "游戏结束";
                 g.drawString(text,(getWidth() - fm.stringWidth(text)) / 2,getHeight() / 2);
                 text = "最终得分：" + valueOf(model.score());
-                g.drawString(text,(getWidth() - fm.stringWidth(text)) / 2,getHeight() / 2 + 72);
+                g.drawString(text,(getWidth() - fm.stringWidth(text)) / 2,getHeight() / 2 + 48);
                 text = "按R重新开始";
                 g.drawString(text,(getWidth() - fm.stringWidth(text)) / 2,getHeight() / 2 + 96);
             }
@@ -122,6 +120,6 @@ public class GamePanel extends JPanel {
     private void drawHud(Graphics g){
         g.setColor(COLOR_TEXT);
         String score = valueOf(model.score());
-        g.drawString(score,getWidth() - 50,20);
+        g.drawString(score,getWidth() - 50,30);
     }
 }

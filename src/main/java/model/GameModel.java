@@ -90,7 +90,7 @@ public class GameModel {
     public Board board(){
         return board;
     }
-    int delayMillis(){
+    public int delayMillis(){
         return delayMillis;
     }
     void start(){
@@ -104,7 +104,7 @@ public class GameModel {
         if(state != GameState.RUNNING) return;
         snake.request(d);
     }
-    void step(){
+    public void step(){
         if(state != GameState.RUNNING) return;
         Direction d = snake.consumeDirection();
         Cell newHead = new Cell(snake.head().x() + d.dx,snake.head().y() + d.dy);
