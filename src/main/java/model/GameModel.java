@@ -71,17 +71,17 @@ public class GameModel {
     private static final int DELAY_STEP = 5;
     private static final int POINTS_PER_FOOD = 10;
 
-    GameModel(int width, int height) {
+    public GameModel(int width, int height) {
         this.snake = new Snake(2, 2, INITIAL_LENGTH);
         this.board = new Board(width, height);
         board.spawnFood(snake.body());
         this.state = GameState.READY;
         this.delayMillis = INITIAL_DELAY;
     }
-    GameState state() {
+    public GameState state() {
         return state;
     }
-    int score(){
+    public int score(){
         return score;
     }
     public Snake snake(){

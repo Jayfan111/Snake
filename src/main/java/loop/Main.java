@@ -1,5 +1,11 @@
 package loop;
 
+import model.GameModel;
+import view.GamePanel;
+
+import javax.swing.*;
+import java.awt.*;
+
 /**
  * 启动入口：建窗口、装配对象、启动。整个文件应该一眼读完（30 行以内）。
  *
@@ -27,7 +33,24 @@ package loop;
  *   3. 尺寸、初始速度这类"开局前就定好、整局不变"的值归这里；
  *      会随一局变化的值（分数、当前步长、状态）归 model。分界线就是"会不会变"。
  */
-public class Main {
-    private static final int COLS = 30;
-    private static final int ROWS = 30;
+public class Main extends JFrame {
+    private static final int COLS = 27;
+    private static final int ROWS = 27;
+    public Main(){
+        setup();
+    }
+    private void setup(){
+        GameModel gm = new GameModel(COLS,ROWS);
+        GamePanel gp = new GamePanel(gm);
+        add(gp);
+        pack();
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+    public static void main(String[] args){
+        EventQueue.invokeLater(() ->{
+            var main = new Main();
+            main.setVisible(true);
+        });
+    }
 }

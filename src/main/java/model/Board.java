@@ -51,11 +51,11 @@ public class Board {
         return food;
     }
 
-    public boolean isInside(Cell c) {
+    boolean isInside(Cell c) {
         return c != null && c.x() >= 0 && c.x() < width && c.y() >= 0 && c.y() < height;
     }
 
-    public void spawnFood(Collection<Cell> occupied) {
+    void spawnFood(Collection<Cell> occupied) {
         Set<Cell> taken = new HashSet<>(occupied);
         List<Cell> empty = new ArrayList<>();
         for (int y = 0; y < height; y++) {
@@ -73,7 +73,7 @@ public class Board {
         food = empty.get(ThreadLocalRandom.current().nextInt(empty.size()));
     }
 
-    public boolean isFoodAt(Cell c) {
+    boolean isFoodAt(Cell c) {
         return food != null && food.equals(c);
     }
 }

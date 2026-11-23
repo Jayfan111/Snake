@@ -6,6 +6,8 @@ import model.GameModel;
 import javax.swing.*;
 import java.awt.*;
 
+import static java.lang.String.valueOf;
+
 /**
  * 画面：把 model 的状态画出来。只做两件事 —— 读、然后画。
  *
@@ -37,7 +39,7 @@ public class GamePanel extends JPanel {
             COLOR_FOOD = Color.yellow, COLOR_TEXT = Color.black;
     private final GameModel model;
 
-    GamePanel(GameModel model){
+    public GamePanel(GameModel model){
         this.model = model;
         setBackground(COLOR_BG);
     }
@@ -54,13 +56,14 @@ public class GamePanel extends JPanel {
         super.paintComponent(g);
         drawFood(g);
         drawSnake(g);
+        drawOverlay(g);
     }
     private void drawFood(Graphics g){
         Cell food = model.board().food();
         if (food == null) return;
         int x = toPixel(food.x());
         int y = toPixel(food.y());
-        g.drawRect(x, y, CELL_SIZE, CELL_SIZE);
+        g.drawOval(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
         g.setColor(COLOR_FOOD);
         g.fillOval(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
     }
@@ -77,11 +80,48 @@ public class GamePanel extends JPanel {
         Cell c = body.getFirst();
         int x = toPixel(c.x());
         int y = toPixel(c.y());
-        g.drawRect(x, y, CELL_SIZE, CELL_SIZE);
+        g.drawOval(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
         g.setColor(COLOR_HEAD);
         g.fillOval(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
     }
-    private void drawOverlay(){
-
+    private void drawOverlay(Graphics g){
+        g.setFont(new Font("微软雅黑",Font.BOLD,29));
+        FontMetrics fm = g.getFontMetrics();
+        switch(model.state()){
+            case READY -> {
+                g.setColor(new Color(0,0,0, 110));
+                g.fillRect(0,0,getWidth(),getHeight());
+                String text = "按空格开始";
+                g.setColor(COLOR_TEXT);
+                g.drawString(text,(getWidth() - fm.stringWidth(text)) / 2,getHeight() / 2 + 96);
+            }
+            case RUNNING -> {
+                drawHud(g);
+            }
+            case PAUSED -> {
+                drawHud(g);
+                g.setColor(new Color(0,0,0, 110));
+                g.fillRect(0,0,getWidth(),getHeight());
+                String text = "已暂停";
+                g.setColor(COLOR_TEXT);
+                g.drawString(text,(getWidth() - fm.stringWidth(text)) / 2,getHeight() / 2 + 96);
+            }
+            case GAME_OVER -> {
+                g.setColor(new Color(0,0,0, 110));
+                g.fillRect(0,0,getWidth(),getHeight());
+                g.setColor(COLOR_TEXT);
+                String text = "游戏结束";
+                g.drawString(text,(getWidth() - fm.stringWidth(text)) / 2,getHeight() / 2);
+                text = "最终得分：" + valueOf(model.score());
+                g.drawString(text,(getWidth() - fm.stringWidth(text)) / 2,getHeight() / 2 + 72);
+                text = "按R重新开始";
+                g.drawString(text,(getWidth() - fm.stringWidth(text)) / 2,getHeight() / 2 + 96);
+            }
+        }
+    }
+    private void drawHud(Graphics g){
+        g.setColor(COLOR_TEXT);
+        String score = valueOf(model.score());
+        g.drawString(score,getWidth() - 50,20);
     }
 }
