@@ -66,8 +66,8 @@ public class GameModel {
     private int score;
     private int delayMillis;
     private static final int INITIAL_LENGTH = 3;
-    private static final int INITIAL_DELAY = 150;
-    private static final int MIN_DELAY = 70;
+    private static final int INITIAL_DELAY = 180;
+    private static final int MIN_DELAY = 80;
     private static final int DELAY_STEP = 5;
     private static final int POINTS_PER_FOOD = 10;
 
@@ -93,14 +93,14 @@ public class GameModel {
     public int delayMillis(){
         return delayMillis;
     }
-    void start(){
+    public void start(){
         if(state == GameState.READY) state = GameState.RUNNING;
     }
-    void togglePause() {
+    public void togglePause() {
         if (state == GameState.RUNNING) state = GameState.PAUSED;
         else if (state == GameState.PAUSED) state = GameState.RUNNING;
     }
-    void requestDirection(Direction d){
+    public void requestDirection(Direction d){
         if(state != GameState.RUNNING) return;
         snake.request(d);
     }
@@ -130,7 +130,7 @@ public class GameModel {
     private void speedUp(){
         delayMillis = Math.max(delayMillis - DELAY_STEP, MIN_DELAY);
     }
-    void reset(){
+    public void reset(){
         snake.reset();
         board.spawnFood(snake.body());
         state = GameState.READY;

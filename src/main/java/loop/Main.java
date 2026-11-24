@@ -2,6 +2,7 @@ package loop;
 
 import model.GameModel;
 import view.GamePanel;
+import view.InputHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,11 +41,12 @@ public class Main{
         JFrame frame = new JFrame("贪吃蛇");
         GameModel model = new GameModel(COLS,ROWS);
         GamePanel panel = new GamePanel(model);
+        GameLoop loop = new GameLoop(model,panel);
+        InputHandler inputHandler = new InputHandler(model, panel);
         frame.add(panel);
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        GameLoop loop = new GameLoop(model,panel);
         frame.setVisible(true);
         loop.start();
     }

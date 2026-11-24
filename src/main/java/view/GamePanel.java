@@ -120,6 +120,6 @@ public class GamePanel extends JPanel {
     private void drawHud(Graphics g){
         g.setColor(COLOR_TEXT);
         String score = valueOf(model.score());
-        g.drawString(score,getWidth() - 50,30);
+        g.drawString(score,getWidth() - 60,30);
     }
 }
