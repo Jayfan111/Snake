@@ -9,27 +9,24 @@ import java.awt.*;
 import static java.lang.String.valueOf;
 
 /**
- * 画面：把 model 的状态画出来。只做两件事 —— 读、然后画。
+ * 画面：读 model，画出来。只读 —— 不判断规则，不调任何写方法。
  *
- * 字段：
- *   private final GameModel model              只读，一个写方法都不许调
- *   private static final int CELL_SIZE = 24    每格像素；改这一个数就能缩放画面
- *   颜色常量（static final，不随对象变化）：COLOR_BG / COLOR_GRID / COLOR_SNAKE /
- *   COLOR_HEAD / COLOR_FOOD / COLOR_TEXT
+ *   CELL_SIZE        每格像素，改它等于缩放画面
+ *   COLOR_*          背景 / 网格 / 蛇身 / 蛇头 / 食物 / 文字
+ *   model            唯一依赖
  *
- * 方法：
- *   GamePanel(GameModel model)          存 model、设背景色
- *   paintComponent(Graphics g)          第一行必须 super.paintComponent(g)；
- *                                       顺序：背景 → 网格 → 食物 → 蛇身 → 蛇头 → 覆盖层
- *   getPreferredSize()                  宽高 = 格子数 * CELL_SIZE + 边距，Main 的 pack() 靠它
- *   drawGrid / drawFood / drawSnake / drawOverlay
- *   toPixel(int cell)                   格子坐标 → 像素，画的时候统一走它
+ *   构造             设背景、关掉本组件的输入法、让自己可聚焦（否则中文输入法会吞键）
+ *   getPreferredSize 像素尺寸 = board 格子数 * CELL_SIZE，pack() 靠它
+ *   paintComponent   第一行 super，然后 drawFood → drawSnake → drawOverlay
+ *   toPixel(cell)    格子坐标 → 像素，所有绘制都走它
+ *   drawFood         food 为 null（满盘）时直接返回
+ *   drawSnake        先画第 1..n 节，最后单独画蛇头，所以头永远在最上层
+ *   drawOverlay      按 state 画：三个非运行态是半透明遮罩 + 文字，RUNNING 只画分数
  *
- * 三条经验：
- *   1. 一行都不许调 model 的写方法，也不许判断"撞墙了没有"。检测到结束就切场景是 loop 的事，
- *      这里出现一个判断规则的 if，分层就废了。
- *   2. 别忘了 extends JPanel —— 不继承的话 paintComponent 永远不会被调用，也不报错。
- *   3. 坐标换算只写一处。以后改 CELL_SIZE 或加边距时，手算过的那些地方会一起错。
+ * 经验：
+ *   1. 不 extends JPanel 就永远收不到 paintComponent 调用，而且不报错。
+ *   2. 坐标换算只写一处，手算过的地方一改 CELL_SIZE 就会集体出错。
+ *   3. 绘制顺序 = 图层顺序，覆盖层必须最后画。
  */
 public class GamePanel extends JPanel {
     private static final int CELL_SIZE = 24;
@@ -42,6 +39,11 @@ public class GamePanel extends JPanel {
     public GamePanel(GameModel model){
         this.model = model;
         setBackground(COLOR_BG);
+        // 关输入法：默认按键会先交给输入法判断要不要消费，中文状态下方向键选候选词、
+        // 空格上屏，InputMap 一条都收不到。下面 setFocusable 是它的前提 ——
+        // 键事件只发给焦点组件，面板拿不到焦点，这行就没有作用对象。
+        enableInputMethods(false);
+        setFocusable(true);
     }
 
     private int toPixel(int cell){

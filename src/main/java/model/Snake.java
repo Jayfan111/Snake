@@ -5,34 +5,26 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 蛇：身体队列 + 待处理方向。
+ * 蛇：身体队列 + 待处理方向。只管"蛇自己"，不管撞墙、不管吃没吃到。
  *
- * 字段：
- *   private final ArrayDeque<Cell> body         蛇身，队首是头、队尾是尾
- *   private final ArrayDeque<Direction> pending  已接受、还没被 tick 消费的方向
- *   private Direction lastMove                  上一次实际生效的方向
- *   private static final int MAX_PENDING = 2    待处理上限，约等于一次 U 型掉头
+ *   body      ArrayDeque<Cell>，队首是头、队尾是尾
+ *   pending   已接受但还没被 tick 消费的方向，最多 MAX_PENDING = 2
+ *   lastMove  上一次实际生效的方向
  *
- * 方法：
- *   Snake(int startX, int startY, int initialLength)  造一条水平朝右的蛇（头在最大 x 上）
- *   Cell head() / int length() / Direction direction()  读状态；length 就是 body.size()
- *   Direction consumeDirection()   每 tick 一次：取队首方向并写回 lastMove，队列空则沿用
- *   void request(Direction d)      入队前做反向校验与容量校验；可能无声地拒绝
- *   void moveTo(Cell newHead) / void removeTail()  落子的两个原子动作，吃没吃到由 GameModel 决定
- *   boolean occupies(Cell c)       这个格子在不在身上
- *   boolean hitSelf(Cell newHead, boolean willGrow)  自撞判定；willGrow 为 false 时尾格让位
- *   List<Cell> body()              给 view 的只读快照
+ *   head() / length() / direction()   读状态；length 就是 body.size()，不缓存
+ *   consumeDirection()                每 tick 一次：取队首并写回 lastMove，队列空则沿用 lastMove
+ *   request(dir)                      入队前校验：反向、超过 2 个、重复的都静默丢弃
+ *   moveTo(newHead) / removeTail()    落子的两个原子动作，走不走由 GameModel 决定
+ *   hitSelf(newHead, willGrow)        willGrow = false 时尾格让位（本 tick 尾巴会移走）
+ *   occupies(Cell)                    这个格子在不在身上
+ *   body()                            返回 List.copyOf 快照给 view
+ *   reset()                           clear 后重新铺 initialLength 节，始终朝右
  *
- * 五条经验：
- *   1. body 是 final，但内容仍然可变：final 锁的是"永远指向同一个队列"，
- *      不锁 offerFirst / pollLast / clear。所以 reset() 用 clear() 再重新塞，不换新队列。
- *   2. 类里没有 length 字段：长度是 body.size() 的派生值。缓存它只会多出
- *      吃食物 / 去尾 / reset 三处必须同步的写入点，漏一处就是"吃了食物没变长"。
- *   3. pending 和 lastMove 必须分开，校验基准是两项合起来：
- *      pending 非空看队尾，为空看上一步实际方向。只比 lastMove 会误杀合法转向
- *      （向右时快速按"上、左"）；只比队尾则队列空时没有基准，等于没校验。
- *   4. 反向校验只能在入队时做，因为只有那一刻才知道该不该收；取的时候已经无权反悔。
- *   5. body() 返回拷贝而不是内部队列，否则 view 一句 pollLast() 就能剪掉蛇尾，还不报错。
+ * 经验：
+ *   1. body 是 final 只锁引用，内容照样能改，所以 reset 用 clear()，不 new 新队列。
+ *   2. 校验基准 = pending 非空看队尾，空则看 lastMove；只比其中一个都会误判合法转向。
+ *   3. 反向校验只能在入队那一刻做，取的时候已经无权反悔。
+ *   4. body() 必须返回拷贝，否则 view 一句 pollLast() 就能剪掉蛇尾，还不报错。
  */
 public class Snake {
     private final ArrayDeque<Cell> body = new ArrayDeque<>();
