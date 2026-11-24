@@ -43,9 +43,9 @@ public class GameModel {
     private static final int DELAY_STEP = 5;
     private static final int POINTS_PER_FOOD = 10;
 
-    public GameModel(int width, int height) {
+    public GameModel(int cols, int rows) {
         this.snake = new Snake(2, 2, INITIAL_LENGTH);
-        this.board = new Board(width, height);
+        this.board = new Board(cols, rows);
         board.spawnFood(snake.body());
         this.state = GameState.READY;
         this.delayMillis = INITIAL_DELAY;

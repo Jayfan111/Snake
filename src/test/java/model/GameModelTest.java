@@ -48,8 +48,8 @@ public class GameModelTest {
     private static void caseInitialState() {
         GameModel m = new GameModel(8, 5);
 
-        expect(8, m.board().width(), "棋盘宽 = 构造参数");
-        expect(5, m.board().height(), "棋盘高 = 构造参数");
+        expect(8, m.board().cols(), "棋盘宽 = 构造参数");
+        expect(5, m.board().rows(), "棋盘高 = 构造参数");
         expect(GameState.READY, m.state(), "构造后状态应为 READY");
         expect(0, m.score(), "初始分数");
         expect(150, m.delayMillis(), "初始步长应为 INITIAL_DELAY");
@@ -225,8 +225,8 @@ public class GameModelTest {
     /** 把食物精确放到 target：把"除 target 外的所有格子"当作已占用传进去。 */
     private static void placeFoodAt(Board board, Cell target) {
         List<Cell> occupied = new ArrayList<>();
-        for (int y = 0; y < board.height(); y++) {
-            for (int x = 0; x < board.width(); x++) {
+        for (int y = 0; y < board.rows(); y++) {
+            for (int x = 0; x < board.cols(); x++) {
                 Cell c = new Cell(x, y);
                 if (!c.equals(target)) occupied.add(c);
             }

@@ -6,6 +6,7 @@ import view.InputHandler;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 /**
  * 入口：建窗口、装配、启动。没有字段，也不写任何游戏规则。
@@ -23,14 +24,20 @@ import java.awt.*;
 public class Main{
     private static final int COLS = 27;
     private static final int ROWS = 27;
+    private static final int MIN_CELL_SIZE = 20;
     private static void setup(){
         JFrame frame = new JFrame("贪吃蛇");
         GameModel model = new GameModel(COLS,ROWS);
         GamePanel panel = new GamePanel(model);
         GameLoop loop = new GameLoop(model,panel);
         InputHandler inputHandler = new InputHandler(model, panel);
+        ImageIcon icon = new ImageIcon(Objects.requireNonNull(Main.class.getResource("/icon/snake-96.png")));
+        frame.setIconImage(icon.getImage());
         frame.add(panel);
         frame.pack();
+        Insets in = frame.getInsets();
+        frame.setMinimumSize(new Dimension(
+                COLS * MIN_CELL_SIZE + in.left + in.right,ROWS * MIN_CELL_SIZE + in.bottom + in.top));
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);

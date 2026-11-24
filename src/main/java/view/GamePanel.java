@@ -29,11 +29,12 @@ import static java.lang.String.valueOf;
  *   3. 绘制顺序 = 图层顺序，覆盖层必须最后画。
  */
 public class GamePanel extends JPanel {
-    private static final int CELL_SIZE = 24;
+    private static final int DEFAULT_CELL_SIZE = 24;
     private static final Color
-            COLOR_BG = Color.white, COLOR_GRID = Color.white,
-            COLOR_SNAKE = Color.green, COLOR_HEAD = Color.blue,
-            COLOR_FOOD = Color.yellow, COLOR_TEXT = Color.black;
+            COLOR_BG = Color.gray, COLOR_GRID = Color.white,
+            COLOR_SNAKE = Color.green, COLOR_HEAD = new Color(20, 159, 25, 255),
+            COLOR_FOOD = Color.red, COLOR_TEXT = Color.black,
+            COLOR_BOARD = Color.white;
     private final GameModel model;
 
     public GamePanel(GameModel model){
@@ -45,44 +46,61 @@ public class GamePanel extends JPanel {
         enableInputMethods(false);
         setFocusable(true);
     }
-
-    private int toPixel(int cell){
-        return cell * CELL_SIZE;
+    private int cellsize(){
+        return Math.min(getWidth() / model.board().cols(),getHeight() / model.board().rows());
+    }
+    private int originX(){
+        return (getWidth() - model.board().cols() * cellsize()) / 2;
+    }
+    private int originY(){
+        return 0;
+    }
+    private int xToPixel(int x){
+        return originX() + x * cellsize();
+    }
+    private int yToPixel(int y){
+        return originY() + y * cellsize();
     }
     @Override
     public Dimension getPreferredSize(){
-        return new Dimension(model.board().width() * CELL_SIZE,model.board().height() * CELL_SIZE);
+        return new Dimension(model.board().cols() * DEFAULT_CELL_SIZE,model.board().rows() * DEFAULT_CELL_SIZE);
     }
     @Override
     public void paintComponent(Graphics g){
         super.paintComponent(g);
+        drawBoard(g);
         drawFood(g);
         drawSnake(g);
         drawOverlay(g);
     }
+    private void drawBoard(Graphics g){
+        g.setColor(COLOR_BOARD);
+        g.fillRect(originX(),originY(),model.board().cols() * cellsize(),model.board().rows() * cellsize());
+    }
     private void drawFood(Graphics g){
         Cell food = model.board().food();
         if (food == null) return;
-        int x = toPixel(food.x());
-        int y = toPixel(food.y());
-        g.drawOval(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+        int x = xToPixel(food.x());
+        int y = yToPixel(food.y());
+        int cellsize = cellsize();
         g.setColor(COLOR_FOOD);
-        g.fillOval(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+        g.fillOval(x + cellsize / 24, y + cellsize / 24, cellsize * 11 / 12, cellsize * 11 / 12);
     }
     private void drawSnake(Graphics g){
         var body = model.snake().body();
+        int cellsize = cellsize();
         for(int i = 1; i < body.size(); i++) {
             Cell c = body.get(i);
-            int x = toPixel(c.x());
-            int y = toPixel(c.y());
+            int x = xToPixel(c.x());
+            int y = yToPixel(c.y());
             g.setColor(COLOR_SNAKE);
-            g.fillOval(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+            g.fillOval(x + cellsize / 24, y + cellsize / 24, cellsize * 11 / 12, cellsize * 11 / 12);
         }
         Cell c = body.getFirst();
-        int x = toPixel(c.x());
-        int y = toPixel(c.y());
+        int x = xToPixel(c.x());
+        int y = yToPixel(c.y());
         g.setColor(COLOR_HEAD);
-        g.fillOval(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+        g.fillOval(x + cellsize / 24, y + cellsize / 24, cellsize * 11 / 12, cellsize * 11 / 12);
     }
     private void drawOverlay(Graphics g){
         g.setFont(new Font("微软雅黑",Font.BOLD,29));

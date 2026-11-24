@@ -6,11 +6,11 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * 棋盘：边界、食物、空格。
  *
- *   width / height            格子数（不是像素），建好后不变
+ *   cols / rows            格子数（不是像素），建好后不变
  *   food                      当前食物；棋盘被占满时为 null（表示通关，不是错误）
  *
- *   width() / height()        给 view 算像素尺寸
- *   isInside(Cell)            0 <= x < width 且 0 <= y < height
+ *   cols() / rows()        给 view 算像素尺寸
+ *   isInside(Cell)            0 <= x < cols 且 0 <= y < rows
  *   spawnFood(occupied)       从所有空格里随机挑一个，没空格就置 null。food 的唯一写入点
  *   isFoodAt(Cell)            先判 null 再比坐标
  *
@@ -21,21 +21,21 @@ import java.util.concurrent.ThreadLocalRandom;
  *   3. nextInt(0) 抛异常，所以空集合判断必须在取随机数之前。
  */
 public class Board {
-    private final int width;
-    private final int height;
+    private final int cols;
+    private final int rows;
     private Cell food;
 
-    public Board(int width, int height) {
-        this.width = width;
-        this.height = height;
+    public Board(int cols, int rows) {
+        this.cols = cols;
+        this.rows = rows;
     }
 
-    public int width() {
-        return width;
+    public int cols() {
+        return cols;
     }
 
-    public int height() {
-        return height;
+    public int rows() {
+        return rows;
     }
 
     public Cell food() {
@@ -43,14 +43,14 @@ public class Board {
     }
 
     boolean isInside(Cell c) {
-        return c != null && c.x() >= 0 && c.x() < width && c.y() >= 0 && c.y() < height;
+        return c != null && c.x() >= 0 && c.x() < cols && c.y() >= 0 && c.y() < rows;
     }
 
     void spawnFood(Collection<Cell> occupied) {
         Set<Cell> taken = new HashSet<>(occupied);
         List<Cell> empty = new ArrayList<>();
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < cols; x++) {
                 Cell c = new Cell(x, y);
                 if (!taken.contains(c)) {
                     empty.add(c);
