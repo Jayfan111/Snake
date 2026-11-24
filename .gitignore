@@ -31,3 +31,4 @@ bin/
 # WorkBuddy 本地会话数据：记忆、工作日志、状态缓存
 # 只是本机的辅助记录，不是项目产物；删掉它不影响程序运行
 .workbuddy/
+/src/main/java/META-INF/
