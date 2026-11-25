@@ -1,5 +1,7 @@
 package model;
 
+import java.util.List;
+
 /**
  * 成绩存储的抽象层。model 只认识这个接口，不认识数据库。
  *
@@ -9,7 +11,7 @@ package model;
  *   没装数据库的机器上连 new GameModel(...) 都跑不起来，测试全红。
  *   接口把"用什么存"挡在 model 外面：正式运行传 SQLite 实现，测试传内存实现。
  *
- * 方法只有两个（签名你自己写，注意 import java.util.List）：
+ * 方法只有两个（接口不写 public，方法天然是 public abstract）：
  *
  *   save(String name, int points)   保存一局成绩。每局一条，不做去重，
  *                                   同一个人可以有很多条。name 不参与唯一性判断。
@@ -33,5 +35,7 @@ package model;
  *   db.SqliteScoreRepository    落盘版，正式运行用
  *   换存储只改 Main 里装配的那一行，其它代码一行不动。
  */
-public class ScoreRepository {
+public interface ScoreRepository {
+    void save(String name, int points);
+    List<Score> top(int limit);
 }

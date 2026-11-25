@@ -21,5 +21,5 @@ package model;
  *      一旦可变，"画到一半被别处改了"这类问题就会出现，而且很难复现。
  *   2. 如果以后要显示"第几名"，那是结果集的行号，不是这个类的字段，别往这里加。
  */
-public record Score() {
+public record Score(String name, int points) {
 }

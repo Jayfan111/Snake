@@ -52,7 +52,7 @@ public class GameModelTest {
         expect(5, m.board().rows(), "棋盘高 = 构造参数");
         expect(GameState.READY, m.state(), "构造后状态应为 READY");
         expect(0, m.score(), "初始分数");
-        expect(150, m.delayMillis(), "初始步长应为 INITIAL_DELAY");
+        expect(180, m.delayMillis(), "初始步长应为 INITIAL_DELAY");
         expect(3, m.snake().length(), "初始蛇长");
         expect(new Cell(4, 2), m.snake().head(), "蛇头位置（startX=2、长 3、朝右 → x=4）");
         expect(true, m.board().food() != null, "开局就应该有食物");
@@ -137,19 +137,23 @@ public class GameModelTest {
         expect(new Cell(5, 2), m.snake().head(), "头进到原来食物那一格");
         expect(4, m.snake().length(), "变长一格");
         expect(10, m.score(), "加 POINTS_PER_FOOD");
-        expect(145, m.delayMillis(), "加速 DELAY_STEP（150 - 5）");
+        expect(175, m.delayMillis(), "加速 DELAY_STEP（180 - 5）");
 
         Cell food = m.board().food();
         expect(true, food != null, "吃完还有下一个食物");
         expect(false, m.snake().occupies(food), "新食物不能刷在蛇身上");
     }
 
-    /** 一路吃 20 个：前 16 个线性变快，之后卡在 MIN_DELAY 不再下降。 */
+    /**
+     * 一路吃 24 个：前 20 个线性变快，之后卡在 MIN_DELAY 不再下降。
+     * 这里写死的 180 / 80 必须和 GameModel 的 INITIAL_DELAY / MIN_DELAY 同步 ——
+     * 它们是 private 常量，测试读不到，改那边就要来这里改（否则测试会红）。
+     */
     private static void caseSpeedFloor() {
         GameModel m = new GameModel(30, 5);
         m.start();
 
-        int[] d = new int[20];
+        int[] d = new int[24];      // 从 180 到 80 要 20 次，多跑 4 次才证明得出"不再下降"
         for (int i = 0; i < d.length; i++) {
             Cell head = m.snake().head();
             placeFoodAt(m.board(), new Cell(head.x() + 1, head.y()));
@@ -157,12 +161,12 @@ public class GameModelTest {
             d[i] = m.delayMillis();
         }
 
-        expect(145, d[0], "第 1 个食物之后的步长");
-        expect(70, d[15], "第 16 个食物之后降到 MIN_DELAY");
-        expect(70, d[16], "第 17 个：不低于下限");
-        expect(70, d[19], "第 20 个：仍不低于下限");
+        expect(175, d[0], "第 1 个食物之后的步长（180 - 5）");
+        expect(80, d[19], "第 20 个食物之后降到 MIN_DELAY（180 - 20×5）");
+        expect(80, d[20], "第 21 个：不低于下限");
+        expect(80, d[23], "第 24 个：仍不低于下限");
         expect(GameState.RUNNING, m.state(), "一直在吃，不该死");
-        expect(200, m.score(), "20 个食物 → 200 分");
+        expect(240, m.score(), "24 个食物 → 240 分");
     }
 
     /**
@@ -203,7 +207,7 @@ public class GameModelTest {
 
         expect(GameState.READY, m.state(), "reset 之后回到 READY");
         expect(0, m.score(), "分数清零");
-        expect(150, m.delayMillis(), "步长复位（上一局的极速不能带过来）");
+        expect(180, m.delayMillis(), "步长复位（上一局的极速不能带过来）");
         expect(3, m.snake().length(), "蛇回到初始长度");
         expect(new Cell(4, 2), m.snake().head(), "蛇头回到起始位置");
         expect(false, m.snake().occupies(m.board().food()), "新食物不在蛇身上");

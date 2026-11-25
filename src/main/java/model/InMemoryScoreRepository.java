@@ -1,5 +1,8 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 成绩只存在内存里的实现，程序一关就没了。
  *
@@ -11,16 +14,15 @@ package model;
  * 为什么放在 main 而不是 test 目录：上面第 2 条是运行时行为，
  *   测试目录里的类不会打进产物，放那儿就没法在正式版本里用。
  *
- * 结构（自己写，import java.util.ArrayList / java.util.List）：
- *   一个 private final List<Score> scores = new ArrayList<>() 当内部存储，
- *   类声明 implements ScoreRepository，两个方法加 @Override。
+ * 结构：一个 private final List<Score> scores 当内部存储，save 直接 add，
+ *   top 走"判负 → 拷贝 → 降序排 → Math.min 截断 → List.copyOf"。
  *
  * 实现要点：
  *   save —— 往 list 里加一条，没有别的逻辑
- *   top  —— 四步：limit <= 0 直接返回空 → 拷贝一份 → 降序排 → 取前 limit 条
+ *   top  —— 四步：limit 为负直接返回空 → 拷贝一份 → 降序排 → 取前 limit 条
  *            截断必须用 Math.min(limit, size)：limit 大于总数时 subList 会抛
  *            IndexOutOfBoundsException，而这个异常在界面上表现为"游戏结束就崩"，
- *            原因却在一百行之外。
+ *            原因却在一百行之外。limit == 0 交给 Math.min 处理就行，subList(0,0) 合法。
  *
  * 经验：
  *   1. 返回给外面的列表必须是新拷贝（List.copyOf）。直接 return 内部 list，
@@ -30,6 +32,26 @@ package model;
  *      前提是排序前没打乱顺序 —— 调试用的 shuffle 之类不要留在代码里。
  *   3. 这个类没有任何 IO，所以可以直接在测试里 new，也可以在 EDT 上调用。
  *      SQLite 版就不该这么用，两边的使用边界要分清。
+ *   4. 比较器写 (a,b) -> b.points() - a.points() 有溢出风险：分数差超过
+ *      Integer.MAX_VALUE 会反向。更稳的是 Integer.compare(b.points(), a.points())。
+ *      本项目分数到不了那个量级，所以先用减法也安全，但要知道它是靠这个前提成立的。
+ *   5. 排序前不能打乱顺序（调试用的 shuffle 之类别留在代码里），
+ *      否则第 2 条那个"稳定排序"的前提就没了，同分次序会随机变。
  */
-public class InMemoryScoreRepository {
+public class InMemoryScoreRepository implements ScoreRepository{
+    private final List<Score> scores = new ArrayList<>();
+
+    @Override
+    public void save(String name, int points) {
+        scores.add(new Score(name, points));
+    }
+
+    @Override
+    public List<Score> top(int limit) {
+        if(limit < 0) return List.of();
+        int n = Math.min(limit,scores.size());
+        List<Score> temp = new ArrayList<>(scores);
+        temp.sort((a,b) -> b.points() - a.points());
+        return List.copyOf(temp.subList(0,n));
+    }
 }
